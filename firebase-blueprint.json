@@ -1,0 +1,92 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User account and profile for internal system",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "password": { "type": "string" },
+        "unit": { "type": "string" },
+        "departments": { "type": "array" },
+        "allowed_modules": { "type": "array" }
+      },
+      "required": ["name", "email", "role"]
+    },
+    "Ticket": {
+      "title": "Ticket",
+      "description": "Internal maintenance, IT, cleaning and supervision tickets",
+      "type": "object",
+      "properties": {
+        "numeric_id": { "type": "number" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "department": { "type": "string" },
+        "status": { "type": "string" },
+        "priority": { "type": "string" },
+        "unit": { "type": "string" },
+        "room": { "type": "string" },
+        "requester_name": { "type": "string" },
+        "requester_email": { "type": "string" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["title", "category", "status", "requester_name"]
+    },
+    "Purchase": {
+      "title": "Purchase",
+      "description": "Purchase requests created by supervisors and managed by buyers",
+      "type": "object",
+      "properties": {
+        "numeric_id": { "type": "number" },
+        "course": { "type": "string" },
+        "class_group": { "type": "string" },
+        "unit": { "type": "string" },
+        "requester_name": { "type": "string" },
+        "requester_email": { "type": "string" },
+        "status": { "type": "string" },
+        "fluig_number": { "type": "string" },
+        "items": { "type": "array" },
+        "created_at": { "type": "string" },
+        "updated_at": { "type": "string" }
+      },
+      "required": ["course", "class_group", "requester_name", "status"]
+    },
+    "Loan": {
+      "title": "Loan",
+      "description": "Equipment loan records",
+      "type": "object",
+      "properties": {
+        "requester_name": { "type": "string" },
+        "equipment": { "type": "string" },
+        "room": { "type": "string" },
+        "unit": { "type": "string" },
+        "status": { "type": "string" },
+        "created_at": { "type": "string" },
+        "returned_at": { "type": "string" }
+      },
+      "required": ["requester_name", "equipment", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "Users of the system"
+    },
+    "/tickets/{ticketId}": {
+      "schema": { "$ref": "#/entities/Ticket" },
+      "description": "All ticket records"
+    },
+    "/purchases/{purchaseId}": {
+      "schema": { "$ref": "#/entities/Purchase" },
+      "description": "All purchase requests"
+    },
+    "/loans/{loanId}": {
+      "schema": { "$ref": "#/entities/Loan" },
+      "description": "All equipment loans"
+    }
+  }
+}

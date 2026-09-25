@@ -1,0 +1,35 @@
+# Dependencies & Build Output
+node_modules/
+build/
+dist/
+coverage/
+.cache/
+
+# Environment & Local Data
+.env
+.env.local
+.env.*.local
+!.env.example
+firebase-applet-config.json
+data_store.json
+
+# Antigravity Skills & AI Agent Artifacts
+.agent/
+.agent
+antigravity-skills/
+skills/
+.skills/
+.antigravity/
+
+# Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.tmp
+*.temp
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+

@@ -1,0 +1,5 @@
+{
+  "name": "Solicitações Porto",
+  "description": "Sistema de gestão de chamados internos, módulo de compras (supervisor/comprador), empréstimos de equipamentos e controle de permissões por aba.",
+  "requestFramePermissions": []
+}
