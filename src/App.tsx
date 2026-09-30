@@ -104,7 +104,12 @@ function AppContent() {
 
   const fetchLoans = async () => {
     try {
-      const res = await fetch('/api/loans', { cache: 'no-store' });
+      const headers: Record<string, string> = {};
+      const authToken = token || localStorage.getItem('token');
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+      const res = await fetch('/api/loans', { headers, cache: 'no-store' });
       const data = await res.json();
       if (Array.isArray(data)) setLoans(data);
     } catch (e) {

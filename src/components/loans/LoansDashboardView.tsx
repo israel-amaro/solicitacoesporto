@@ -148,14 +148,17 @@ export const LoansDashboardView = ({
     }
   };
 
+  const isFinishedStatus = (status: string) => {
+    return ['concluido', 'finalizado', 'devolvido', 'recusado', 'reprovado'].includes(status);
+  };
+
   const filteredLoans = loans.filter(l => {
-    const isFinished = l.status === 'concluido' || l.status === 'recusado';
+    const isFinished = isFinishedStatus(l.status);
     return loanTab === 'ativos' ? !isFinished : isFinished;
   });
 
   const isOverdue = (l: Loan) => {
-    const isFinished = l.status === 'concluido' || l.status === 'recusado';
-    if (isFinished) return false;
+    if (isFinishedStatus(l.status)) return false;
     return (Date.now() - new Date(l.created_at).getTime()) > 86400000;
   };
 
@@ -180,13 +183,13 @@ export const LoansDashboardView = ({
               onClick={() => setLoanTab('ativos')}
               className={cn("px-4 py-2 rounded-lg text-sm font-bold transition-all", loanTab === 'ativos' ? "bg-blue-600 text-white" : "text-slate-500")}
             >
-              Ativos ({loans.filter(l => l.status !== 'concluido' && l.status !== 'recusado').length})
+              Ativos ({loans.filter(l => !isFinishedStatus(l.status)).length})
             </button>
             <button
               onClick={() => setLoanTab('concluidos')}
               className={cn("px-4 py-2 rounded-lg text-sm font-bold transition-all", loanTab === 'concluidos' ? "bg-blue-600 text-white" : "text-slate-500")}
             >
-              Concluídos/Recusados ({loans.filter(l => l.status === 'concluido' || l.status === 'recusado').length})
+              Concluídos/Recusados ({loans.filter(l => isFinishedStatus(l.status)).length})
             </button>
           </div>
         </header>
@@ -230,14 +233,20 @@ export const LoansDashboardView = ({
                     </div>
                     <div className="flex flex-col items-end gap-2">
                       <Badge className={
-                        loan.status === 'pendente' ? 'bg-amber-100 text-amber-700' :
+                        loan.status === 'pendente' || loan.status === 'pendente_autorizacao' ? 'bg-amber-100 text-amber-700' :
                         loan.status === 'autorizado' ? 'bg-blue-100 text-blue-700' :
-                        loan.status === 'em_uso' ? 'bg-purple-100 text-purple-700' :
-                        loan.status === 'concluido' ? 'bg-emerald-100 text-emerald-700' :
-                        loan.status === 'recusado' ? 'bg-red-100 text-red-700' :
+                        loan.status === 'em_uso' || loan.status === 'liberado' ? 'bg-purple-100 text-purple-700' :
+                        loan.status === 'concluido' || loan.status === 'finalizado' || loan.status === 'devolvido' ? 'bg-emerald-100 text-emerald-700' :
+                        loan.status === 'recusado' || loan.status === 'reprovado' ? 'bg-red-100 text-red-700' :
                         'bg-slate-100 text-slate-700'
                       }>
-                        {loan.status === 'em_uso' ? 'EM USO' : loan.status.toUpperCase()}
+                        {
+                          loan.status === 'pendente_autorizacao' ? 'PENDENTE' :
+                          loan.status === 'em_uso' ? 'EM USO' :
+                          loan.status === 'reprovado' ? 'REPROVADO' :
+                          loan.status === 'devolvido' || loan.status === 'finalizado' ? 'CONCLUÍDO' :
+                          loan.status.toUpperCase()
+                        }
                       </Badge>
                       {loan.pin && (loan.status === 'autorizado' || loan.status === 'em_uso') && (
                         <div className="bg-blue-600 text-white px-3 py-1 rounded-lg font-mono font-bold text-lg shadow-lg shadow-blue-200">
@@ -253,11 +262,11 @@ export const LoansDashboardView = ({
                     <p><strong>Solicitado em:</strong> {new Date(loan.created_at).toLocaleString()}</p>
                   </div>
 
-                  {loan.status === 'recusado' && (
+                  {(loan.status === 'recusado' || loan.status === 'reprovado') && (
                     <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-xl space-y-1">
                       <p className="text-sm text-red-800 font-bold uppercase tracking-wider text-xs">Motivo da Reprovação</p>
                       <p className="text-sm text-red-700 font-medium">"{loan.rejection_reason}"</p>
-                      <p className="text-xs text-red-500 mt-1">Reprovado por: {loan.rejected_by} em {loan.rejected_at ? new Date(loan.rejected_at).toLocaleString() : '—'}</p>
+                      <p className="text-xs text-red-500 mt-1">Reprovado por: {loan.rejected_by || 'Gestor'} em {loan.rejected_at ? new Date(loan.rejected_at).toLocaleString() : '—'}</p>
                     </div>
                   )}
 
@@ -318,7 +327,7 @@ export const LoansDashboardView = ({
 
                   {loanTab === 'ativos' && (
                     <div className="flex gap-3 pt-4 border-t border-slate-100 mt-4">
-                      {loan.status === 'pendente' && (
+                      {(loan.status === 'pendente' || loan.status === 'pendente_autorizacao') && (
                         <>
                           <Button onClick={() => { setSelectedLoan(loan); setShowAuthModal(true); }}>
                             Autorizar Empréstimo
@@ -328,7 +337,7 @@ export const LoansDashboardView = ({
                           </Button>
                         </>
                       )}
-                      {(loan.status === 'liberado' || loan.status === 'autorizado' || loan.status === 'em_uso') && user?.role === 'admin' && (
+                      {(loan.status === 'liberado' || loan.status === 'autorizado' || loan.status === 'em_uso') && (user?.role === 'admin' || user?.role === 'gestor') && (
                         <Button variant="secondary" onClick={() => { setSelectedLoan(loan); setShowCompleteModal(true); }}>
                           Encerrar Manualmente (Admin)
                         </Button>
